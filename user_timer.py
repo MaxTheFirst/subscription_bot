@@ -26,7 +26,7 @@ class UserTimer():
             for user in users:
                 time_x = datetime(user.finish_sub.year, user.finish_sub.month, user.finish_sub.day)
                 time = datetime.now()
-                delta = round((time_x-time).seconds / 3600)
+                delta = round((time_x-time).total_seconds() / 3600)
                 if delta in time_deltas:
                     is_finish = delta == finish_delta
                     await self.func(user.user_id, user.fi_name, REQUEST_PAY[delta], is_finish)

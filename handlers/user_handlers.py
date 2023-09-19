@@ -32,7 +32,7 @@ async def send_to_admins(text: str, user_id, *args):
 async def read_name(message: Message):
     name = message.text
     leng_name = len(name)
-    if ' ' not in name and leng_name >= MIN_LENGHT_OF_NAME and leng_name <= MAX_LENGHT_OF_NAME:
+    if ' ' not in name or leng_name <= MIN_LENGHT_OF_NAME or leng_name >= MAX_LENGHT_OF_NAME:
         await message.answer(texts.ERROR_NAME)
         return
     user_id = message.from_user.id
