@@ -1,6 +1,6 @@
-BOT_TOKEN = '***'
+BOT_TOKEN = '6392552967:AAGxEOOmrW2mJ4wE5p_u-wBOdllRS_w3siI'
 
-ADMINS = ['admin_username']
+ADMINS = ['maxprogest', 'balpcservice']
 
 MAX_COUNT_BTN = 10
 

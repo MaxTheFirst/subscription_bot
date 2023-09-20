@@ -1,5 +1,5 @@
 from config import DATA_FORMAT
-from dispatcher import dp
+from dispatcher import dp, bot
 from states import UserStates
 from db import DBManager
 from aiogram.types import Message, CallbackQuery
@@ -20,7 +20,7 @@ async def get_user_from(message: Message, args):
     if not user:
         await message.answer(texts.ERROR)
         return None
-    await message.edit_reply_markup()
+    await message.delete_reply_markup()
     return user
 
 
@@ -36,13 +36,14 @@ async def update_click(callback: CallbackQuery, state: FSMContext, args):
 @dp.message_handler(state=UserStates.paste_date)
 async def read_date(message: Message, state: FSMContext):
     try:
-        now = datetime.now()
-        next_date = datetime.strptime(message.text, DATA_FORMAT)
+        now = datetime.now().date()
+        next_date = datetime.strptime(message.text, DATA_FORMAT).date()
         if next_date > now:
             user_id = (await state.get_data())['user_id']
-            DBManager.update_user(user_id, finish_sub=next_date.date())
+            DBManager.update_user(user_id, finish_sub=next_date)
             await message.answer(texts.UPDATE_OK)
             await state.finish()
+            await bot.send_message(user_id, texts.USER_UPDATE_TEXT.format(next_date.strftime(DATA_FORMAT)))
             return
     except ValueError:
         pass

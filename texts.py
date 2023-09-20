@@ -4,7 +4,7 @@ START_COMMAND = 'start'
 
 HELLOW = '1'
 ERROR_NAME  = ' Ошибка ввода. Введите полное имя!'
-THANKS = '{}, 2{}'
+THANKS = '{}, {}'
 REQUEST_PAY = {
     4: '3',
     2: '5',
@@ -24,6 +24,7 @@ UPDATE_DATE = 'Изменить дату'
 UPDATE_KEY = 'update_'
 UPDATE_TEXT = 'Текущая дата - {}. На какую хотите изменить?'
 UPDATE_OK = 'Изменение сохранено.'
+USER_UPDATE_TEXT = 'Ваша дата изменина на {}'
 LIST_TEXT = 'Даты следующих платежей:'
 CHOOSE_USER = 'Выберите пользователя:'
 NO_USERS = 'Нет добавленных пользователей.'
