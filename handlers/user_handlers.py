@@ -1,3 +1,4 @@
+from .check_user import is_privacy
 from config import MIN_LENGHT_OF_NAME, MAX_LENGHT_OF_NAME, DATA_FORMAT
 from dispatcher import bot, dp, timer
 from bot_filters import admin_ids
@@ -24,7 +25,8 @@ def get_next_month():
 
 async def send_to_admins(text: str, user_id, *args):
     text = text.format(*args)
-    keyboard = keyboards.get_admin_keyboard(user_id)
+    is_privacy_user = await is_privacy(user_id)
+    keyboard = keyboards.get_admin_keyboard(user_id, is_privacy_user)
     for admin in admin_ids:
         await bot.send_message(admin, text, reply_markup=keyboard)
 

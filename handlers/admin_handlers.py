@@ -1,3 +1,4 @@
+from .check_user import is_privacy
 from config import DATA_FORMAT
 from dispatcher import dp, bot
 from states import UserStates
@@ -20,7 +21,6 @@ async def get_user_from(message: Message, args):
     if not user:
         await message.answer(texts.ERROR)
         return None
-    await message.delete_reply_markup()
     return user
 
 
@@ -28,10 +28,15 @@ async def get_user_from(message: Message, args):
 async def update_click(callback: CallbackQuery, state: FSMContext, args):
     user = await get_user_from(callback.message, args)
     if user:
-        await callback.message.answer(texts.UPDATE_TEXT.format(user.finish_sub.strftime(DATA_FORMAT)))
+        await callback.message.edit_text(texts.UPDATE_TEXT.format(user.finish_sub.strftime(DATA_FORMAT)), reply_markup=keyboards.back)
         await state.update_data(user_id=user.user_id)
         await UserStates.paste_date.set()
 
+@dp.callback_query_handler(callback_cmd=texts.BACK_CMD, state=UserStates.paste_date)
+async def back_click(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer(texts.HELP)
+    await callback.message.delete_reply_markup()
+    await state.finish()
 
 @dp.message_handler(state=UserStates.paste_date)
 async def read_date(message: Message, state: FSMContext):
@@ -82,11 +87,12 @@ async def edit_keyboard(callback: CallbackQuery, args):
 async def choose_user(callback: CallbackQuery, args):
     user = await get_user_from(callback.message, args)
     if user:
-        keyboard = keyboards.get_admin_keyboard(user.user_id, True)
-        await callback.message.answer(texts.EDIT_TEXT.format(user.fi_name, user.finish_sub.strftime(DATA_FORMAT)), reply_markup=keyboard)
+        is_privacy_user = await is_privacy(user.user_id)
+        keyboard = keyboards.get_admin_keyboard(user.user_id, is_privacy_user, True)
+        await callback.message.edit_text(texts.EDIT_TEXT.format(user.fi_name, user.finish_sub.strftime(DATA_FORMAT)), reply_markup=keyboard)
 
 
 @dp.callback_query_handler(callback_cmd=texts.DELETE_CMD)
 async def choose_user(callback: CallbackQuery, args):
     DBManager.delete_user(int(args[0]))
-    await callback.message.answer(texts.DELETE_OK)
+    await callback.message.edit_text(texts.DELETE_OK)

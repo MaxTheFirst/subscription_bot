@@ -4,14 +4,18 @@ from db import DBManager
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 
 pay = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(KeyboardButton(PAY_KEY_TEXT))
+back = InlineKeyboardMarkup().add(InlineKeyboardButton(BACK, callback_data=BACK_CMD))
 
 def get_user_button(text, key, user_id):
     return InlineKeyboardButton(text, callback_data=key+str(user_id))
 
-def get_admin_keyboard(user_id, delete_btn=False):
-    keyboard = InlineKeyboardMarkup().add(
-        InlineKeyboardButton(USER_KEY_TEXT, url=USER_URL.format(user_id))
-    ).add(
+def get_admin_keyboard(user_id, is_privacy, delete_btn=False):
+    keyboard = InlineKeyboardMarkup()
+    if not is_privacy:
+        keyboard.add(
+            InlineKeyboardButton(USER_KEY_TEXT, url=USER_URL.format(user_id))
+        )
+    keyboard.add(
         get_user_button(UPDATE_DATE, UPDATE_KEY, user_id)
     )
     if delete_btn:
