@@ -4,10 +4,11 @@ from dispatcher import bot, dp, timer
 from bot_filters import admin_ids
 from states import UserStates
 from db import DBManager
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardRemove, Update
 from aiogram.dispatcher.filters import Text
 from datetime import date, timedelta 
 from calendar import monthrange
+import traceback
 import texts
 import keyboards
 
@@ -23,10 +24,12 @@ def get_next_month():
     days = monthrange(today.year, today.month)[1]
     return today + timedelta(days=days)
 
-async def send_to_admins(text: str, user_id, *args):
-    text = text.format(*args)
-    is_privacy_user = await is_privacy(user_id)
-    keyboard = keyboards.get_admin_keyboard(user_id, is_privacy_user)
+async def send_to_admins(text: str, user_id=None, *args):
+    keyboard = None
+    if user_id:
+        text = text.format(*args)
+        is_privacy_user = await is_privacy(user_id)
+        keyboard = keyboards.get_admin_keyboard(user_id, is_privacy_user)
     for admin in admin_ids:
         await bot.send_message(admin, text, reply_markup=keyboard)
 
@@ -59,3 +62,8 @@ async def click_pay(message: Message):
     DBManager.update_user(user_id, finish_sub=get_next_month())
     user = DBManager.get_user(user_id)
     await send_to_admins(texts.ADMIN_PAY_OK, user_id, user.fi_name, user.finish_sub.strftime(DATA_FORMAT))
+
+@dp.errors_handler()
+async def send_error(update: Update, _):
+    text = f'{texts.ERROR}:\n{update}\n---------------\n{traceback.format_exc()}'
+    await send_to_admins(text)

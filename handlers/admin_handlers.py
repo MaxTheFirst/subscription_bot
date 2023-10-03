@@ -38,7 +38,7 @@ async def back_click(callback: CallbackQuery, state: FSMContext):
     await callback.message.delete_reply_markup()
     await state.finish()
 
-@dp.message_handler(state=UserStates.paste_date)
+@dp.message_handler(state=UserStates.paste_date, is_admin=True)
 async def read_date(message: Message, state: FSMContext):
     try:
         now = datetime.now().date()
@@ -96,3 +96,17 @@ async def choose_user(callback: CallbackQuery, args):
 async def choose_user(callback: CallbackQuery, args):
     DBManager.delete_user(int(args[0]))
     await callback.message.edit_text(texts.DELETE_OK)
+
+
+@dp.message_handler(commands=[texts.SEND_COMMAND], commands_prefix=texts.PREFIX, state=[*UserStates.all_states, None], is_admin=True)
+async def send_begin(message: Message):
+    await UserStates.send_mess.set()
+    await message.answer(texts.SEND_TEXT, reply_markup=keyboards.back)
+
+
+@dp.message_handler(state=UserStates.send_mess, is_admin=True)
+async def send_messages(message: Message, state: FSMContext):
+    for user in DBManager.users():
+        await message.copy_to(user.user_id)
+    await state.finish()
+    await message.answer(texts.SEND_OK)

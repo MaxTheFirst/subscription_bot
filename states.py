@@ -5,3 +5,4 @@ class UserStates(StatesGroup):
     paste_name = State()
     pay = State()
     paste_date = State()
+    send_mess = State()
